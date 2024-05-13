@@ -1,8 +1,10 @@
 const form = document.querySelector("#form");
 const search = document.querySelector("#termino");
 const results = document.querySelector("#results");
-const picturesPage = 50;
-const page = 1;
+const paginacion = document.querySelector("#paginacion");
+const picturesPage = 40;
+let totalPages;
+let actualPage = 1;
 
 document.addEventListener("DOMContentLoaded", startApp)
 
@@ -20,8 +22,7 @@ function validateForm(e){
         results.appendChild(emptyMessage)
         return;
     }
-
-    getApi(search.value)
+    getApi()
 }
 
 function cleanHtml(element){
@@ -30,19 +31,26 @@ function cleanHtml(element){
     }
 }
 
-function getApi(searchValue){
+function showPages(totalHits){
+    return Math.ceil(totalHits/picturesPage)
+}
+
+function getApi(){
+    const searchValue = document.querySelector("#termino").value;
+
     const apiKey = "43822489-e2d03f7f85283372c2c69cdb2";
-    const url = `https://pixabay.com/api/?key=${apiKey}&q=${searchValue}&image_type=photo&per_page=${picturesPage}`
+    const url = `https://pixabay.com/api/?key=${apiKey}&q=${searchValue}&image_type=photo&per_page=${picturesPage}&page=${actualPage}`
     
     fetch(url)
         .then(respuesta => respuesta.json())
         .then(resultado => {
+            totalPages = showPages(resultado.totalHits);
             displayPictures(resultado.hits);
-            showPages(resultado);
         })
 }
 
 function displayPictures(pictures){
+    cleanHtml(results)
     pictures.forEach(picture => {
         const {likes, previewURL, views} = picture;
         const cardPic = document.createElement("DIV");
@@ -83,8 +91,34 @@ function displayPictures(pictures){
         results.appendChild(cardPic);
         cardPic.classList.add("card-pic");
     })
+
+    cleanHtml(paginacion)
+    displayPaginador()
 }
 
-function showPages(resultado){
-    console.log(resultado.totalHits)
+function* Paginador(){
+    for(let i = 1; i<=totalPages; i++){
+        yield i;
+    }
+}
+
+function displayPaginador(){
+    const iterador = Paginador();
+    
+    while(true){
+        const {value, done} = iterador.next();
+        if(done) return;
+
+        const pageBtn = document.createElement("BUTTON");
+        pageBtn.href = "#";
+        pageBtn.dataset.pagina = value;
+        pageBtn.textContent = value;
+        pageBtn.classList.add("page-btn");
+
+        pageBtn.onclick = ()=>{
+            actualPage = value;
+            getApi()
+        }
+        paginacion.appendChild(pageBtn)
+    }
 }

@@ -84,3 +84,10 @@ body {
   font-weight: bold;
   margin-right: 5px;
 }
+.page-btn{
+  width: 50px;
+  background-color: var(--primary-color);
+  margin: 0 5px 10px 5px;
+  border-radius: 3px;
+  padding: 3px;
+}
