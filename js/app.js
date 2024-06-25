@@ -35,18 +35,27 @@ function showPages(totalHits){
     return Math.ceil(totalHits/picturesPage)
 }
 
-function getApi(){
+async function getApi(){
     const searchValue = document.querySelector("#termino").value;
 
     const apiKey = "43822489-e2d03f7f85283372c2c69cdb2";
     const url = `https://pixabay.com/api/?key=${apiKey}&q=${searchValue}&image_type=photo&per_page=${picturesPage}&page=${actualPage}`
     
-    fetch(url)
+  /*   fetch(url)
         .then(respuesta => respuesta.json())
         .then(resultado => {
             totalPages = showPages(resultado.totalHits);
             displayPictures(resultado.hits);
-        })
+        }) */
+    
+    try{
+        const respuesta = await fetch(url);
+        const resultado = await respuesta.json();
+        totalPages = showPages(resultado.totalHits);
+        displayPictures(resultado.hits);
+    } catch(error){
+        console.error(error)
+    }
 }
 
 function displayPictures(pictures){
